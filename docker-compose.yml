@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+  foody.backend:
+    container_name: foody.backend
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on: 
+      - foody.db 
+    environment:
+      DB_SCHEMA: foody
+      DB_USER: postgres
+      DB_PASSWORD: foodytest
+      DB_HOST: foody.db
+    networks: 
+      - foody
+
+  foody.db:
+    container_name: foody.db
+    image: postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: foodytest
+      PGDATA: /data/postgres_foody_nodejs
+    volumes:
+      - postgres:/data/postgres_foody_nodejs
+    networks:
+      - foody  
+
+  foody.frontend:
+    container_name: foody.frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on: 
+      - foody.backend 
+    networks: 
+      - foody  
+  
+volumes:
+  postgres:
+
+networks:
+  foody:
